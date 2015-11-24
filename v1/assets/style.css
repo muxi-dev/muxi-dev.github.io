@@ -1,0 +1,85 @@
+nav {
+  position: fixed;
+  width: 20vw;
+  height: 100vh;
+  padding-left: 20px;
+}
+
+nav ol {
+  padding-left: 20px;
+}
+
+section {
+  margin-left: 20vw;
+  padding: 0 20px;
+}
+
+article {
+  min-height: 100vh;
+  padding-top: 10px;
+  padding-bottom: 200px;
+}
+
+article:last-child {
+  padding-bottom: 20px;
+}
+
+article li {
+  margin-top: 30px;
+}
+
+ul.tiny li,
+ul.tiny ul li,
+ol.tiny li,
+ol.tiny ol li {
+  margin-top: 0;
+}
+
+h5 {
+  font-weight: bold;
+  margin-top: 2em;
+}
+
+dd {
+  margin-bottom: 1em;
+}
+
+.pre-kbd {
+  background: #333;
+  color: #fff;
+}
+
+dt code {
+  font-size: 1.1em;
+  padding-left: 0;
+}
+
+mark {
+  background: none;
+  color: red;
+}
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  nav {
+    position: inherit;
+    width: auto;
+    height: auto;
+    page-break-after: always;
+  }
+
+  .print-only {
+    display: inherit;
+  }
+
+  .print-hidden {
+    display: none;
+  }
+
+  article {
+    page-break-after: always;
+  }
+}

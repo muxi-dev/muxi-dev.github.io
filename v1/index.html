@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentação ECOM</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/solarized_dark.min.css">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="bg-info">
+        <h3><span class="print-only">Índice</span><span class="print-hidden">Menu</span></h3>
+        <ol>
+          <li><a href="#introducao">Introdução</a></li>
+          <li><a href="#checkout_redirect">Checkout Redirect</a></li>
+          <li>
+            <a href="#api_javascript">Checkout Transparente (API)</a>
+            <ol>
+              <li><a href="#api_javascript_iniciandoSessao">Iniciando Sessão - <code>api.init</code></a>
+                <ol>
+                  <li><a href="#api_javascript_iniciandoSessao_backend">Backend</a></li>
+                  <li><a href="#api_javascript_iniciandoSessao_frontend">Frontend</a></li>
+                </ol>
+              </li>
+              <li><a href="#api_javascript_transacionando">Transacionando - <code>api.pay</code></a>
+                <ol>
+                  <li><a href="#api_javascript_dadosDePagamento">Dados de Pagamento</a></li>
+                  <li><a href="#api_javascript_callbackDeSucesso">Callback de Sucesso</a></li>
+                  <li><a href="#api_javascript_callbackDeErro">Callback de Erro</a></li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </nav>
+
+      <section>
+        <h1>Documentação Muxi Payment</h1>
+        <a name="introducao"></a>
+        <article>
+          <h2>Introdução</h2>
+          <p>Este documento descreve os passos necessários para realizar uma integração com a nossa plataforma de pagamentos.</p>
+          <p>Oferecemos duas formas de realizar o checkout:
+          <ul>
+            <li>
+              <h3>Checkout Redirect</h3>
+              <p>No Checkout Redirect, basta que o desenvolvedor faça um POST através de um formulário HTML que a nossa solução toma conta de todo o resto, apresentando ao cliente uma página com o nome e logotipo da sua empresa oferecendo as diferentes soluções de pagamento. A solução Checkout Redirect fica sendo responsável por toda a comunicação com a API, simplificando o desenvolvimento. Para mais detalhes, <a href="#checkout_redirect">clique aqui</a>.</p>
+            </li>
+            <li>
+              <h3>Checkout Transparente</h3>
+              <p>No Checkout Transparente, o desenvolvedor é responsável por controlar todos os dados relacionados ao status do pagamento (carrinho etc.) e realizar as comunicações com o servidor através do acesso à nossa API via JavaScript. Para mais detalhes, <a href="#api_javascript">clique aqui</a>.</p>
+            </li>
+        </article>
+
+        <a name="checkout_redirect"></a>
+        <article>
+          <h2>Checkout Redirect</h2>
+          <p>Neste exemplo, utilizaremos a <em>Loja Teste</em>, que não é uma plataforma de loja online completa, mas possui um formulário com os campos essenciais para realizar a chamada para a API. Você pode <a href="#checkout_redirect_exemplo">ver um exemplo</a> ou <a href="http://TODO-CORRIGIR-URL" target="_blank">baixar o código fonte da Loja Teste no nosso Github</a>.</p>
+          <ol>
+            <li>
+              <p>O cliente implementa um formulário com os parâmetros da solução contendo dados para o <strong>Checkout</strong>. O <code>action</code> do formulário deve apontar para a URL <code>https://lab-s-muxipay.muxi.com.br/api/v1/checkout_redirect/</code>.</p>
+              <p>Os seguintes parâmetros são <em>obrigatórios</em>:</p>
+              <dl>
+                <dt><code>storeCode</code></dt>
+                <dd>Código da loja no sistema: é fornecido pela MUXI, após a contratação do serviço</dd>
+                <dt><code>storeReturnURL</code></dt>
+                <dd>URL de retorno, após a conclusão do checkout</dd>
+                <dt><code>userName</code></dt>
+                <dd>Nome do comprador</dd>
+                <dt><code>userMail</code></dt>
+                <dd>E-mail do comprador</dd>
+              </dl>
+              <p>Os seguintes parâmetros são <em>opcionais</em>:</p>
+              <dl>
+                <dt><code>storeName</code></dt>
+                <dd>Nome da loja, a ser exibido no checkout</dd>
+                <dt><code>storeLogoURL</code></dt>
+                <dd>Logotipo da loja, a ser exibido no checkout</dd>
+              </dl>
+              <p>Estes parâmetros tipicamente são passados como <code>input type="hidden"</code>, como no exemplo:<br>
+              <kbd>&lt;input type="hidden" name="userName" value="Jon Snow"&gt;</kbd></p>
+            </li>
+            <li>
+              <p>Inserir os dados do carrinho, sendo cada um conjunto dos itens abaixo para cada item do pedido:</p>
+              <dl>
+                <dt><code>itemDescricao[]</code></dt>
+                <dd>Descrição/Nome do produto</dd>
+                <dt><code>itemQuantidade[]</code></dt>
+                <dd>Quantidade (colocar, mesmo que vazio)</dd>
+                <dt><code>itemValorUnitario[]</code></dt>
+                <dd>Valor unitário (colocar, mesmo que vazio)</dd>
+                <dt><code>itemValorTotal[]</code></dt>
+                <dd>Valor total (quantidade x valor unitário)</dd>
+              </dl>
+              <p>Ao final do pedido, inserir um campo com o total do pedido:</p>
+              <dl>
+                <dt><code>total</code></dt>
+                <dd>Valor total do pedido</dd>
+              </dl>
+              <p>Estes parâmetros tipicamente são passados como <code>input type="hidden"</code>, mas também podem ser passados como <code>text</code>, como no exemplo:<br>
+              <kbd>&lt;input type="text" name="itemValorUnitario[]" value="1,00"&gt;</kbd></p>
+              <a name="checkout_redirect_exemplo"></a>
+              <p>Veja um exemplo de pedido com dados passados via Form Data:</p>
+<p><pre><code class="html">&lt;form action="https://lab-s-muxipay.muxi.com.br/api/v1/checkout_redirect/" method="POST"&gt;
+  &lt;!-- Campos com informações da loja e do cliente --&gt;
+  &lt;input type="hidden" name="storeCode" value="<em>CÓDIGO_DA_LOJA</em>"&gt;
+  &lt;input type="hidden" name="storeReturnURL" value="<em>URL_PARA_PEDIDO_REGISTRADO_COM_SUCESSO</em>"&gt;
+  &lt;input type="hidden" name="storeName" value="<em>NOME_DA_LOJA</em>"&gt;
+  &lt;input type="hidden" name="storeLogoURL" value="<em>URL_DO_LOGOTIPO_DA_LOJA</em>"&gt;
+  &lt;input type="hidden" name="userName" value="<em>NOME_DO_CLIENTE</em>"&gt;
+  &lt;input type="hidden" name="userEmail" value="<em>EMAIL_DO_CLIENTE</em>"&gt;
+
+  &lt;!-- para cada produto, as quatro linhas a seguir --&gt;
+  &lt;input type="hidden" name="itemDescricao[]" value="<em>Café</em>"&gt;
+  &lt;input type="hidden" name="itemQuantidade[]" value="<em>10</em>"&gt;
+  &lt;input type="hidden" name="itemValorUnitario[]" value="<em>1,00</em>"&gt;
+  &lt;input type="hidden" name="itemValorTotal[]" value="<em>10,00</em>"&gt;
+
+  &lt;!-- mais um produto --&gt;
+  &lt;input type="hidden" name="itemDescricao[]" value="<em>Chá</em>"&gt;
+  &lt;input type="hidden" name="itemQuantidade[]" value="<em>2</em>"&gt;
+  &lt;input type="hidden" name="itemValorUnitario[]" value="<em>2,00</em>"&gt;
+  &lt;input type="hidden" name="itemValorTotal[]" value="<em>4,00</em>"&gt;
+
+  &lt;!-- para gastos fixos como frete não é necessário especificar quantidade e valor unitário --&gt;
+  &lt;input type="hidden" name="itemDescricao[]" value="<em>Frete</em>"&gt;
+  &lt;input type="hidden" name="itemValorTotal[]" value="<em>5,00</em>"&gt;
+
+  &lt;!-- por fim, um campo para o valor total --&gt;
+  &lt;input type="hidden" name="total" value="<em>19,00</em>"&gt;
+
+  &lt;!-- botão para chamar o submit do form, poderia ser feito por JavaScript --&gt;
+  &lt;input type="submit" value="Finalizar pedido"&gt;
+&lt;/form&gt;</code></pre></p>
+            </li>
+            <li>O usuário será direcionado para a página de pagamento, e irá inserir as informações da forma de pagamento escolhida.</li>
+            <li>Caso o pagamento seja registrado com sucesso, o usuário será redirecionado para a página de confirmação de pagamento especificada. O número do pedido será passado via query string, e você poderá verificar o status do pagamento através do painel.</li>
+          </ol>
+        </article>
+
+        <a name="api_javascript"></a>
+        <article>
+          <h2>Checkout Transparente - API JavaScript</h2>
+          <p>Todas as chamadas à nossa API são realizadas no endpoint <kbd>https://lab-s-muxipay.muxi.com.br/api/v1/checkout_transparente/</kbd>. Em linhas gerais, o fluxo é o seguinte:</p>
+          <ol class="tiny">
+            <li>Iniciar a sessão
+              <ol>
+                <li>Fazer uma chamada no backend passando o seu token de cliente e recebendo o ID da sessão</li>
+                <li>No frontend, chamar o nosso javascript e a função <code>api.init</code> passando o ID da sessão</li>
+              </ol>
+            </li>
+            <li>Montar um objeto com os dados de pagamento e fazer a chamada à API através da função <code>api.pay</code></li>
+            <li>Tratar o callback de sucesso ou de erro da requisição.</li>
+          </ol>
+
+          <a name="api_javascript_iniciandoSessao"></a>
+          <h3>Iniciando Sessão</h3>
+          <p>Para implementar o Checkout Transparente, o primeiro passo é iniciar a sessão de pagamento. Este passo tipicamente é feito quando o cliente já selecionou os produtos no carrinho, e vai para a tela de inserção de dados de pagamento. São dois passos: primeiro uma chamada no backend (do seu servidor para o nosso serviço), depois uma chamada no frontend (da máquina do cliente para o nosso serviço).</p>
+
+          <a name="api_javascript_iniciandoSessao_backend"></a>
+          <h4>Iniciando Sessão no Backend</h4>
+          <p>Para começar, você deverá fazer uma chamada no backend para o nosso serviço, passando o <strong>ID de cliente</strong>, e o nosso serviço irá retornar um <strong>ID para a sessão</strong>. Este ID da sessão você deverá trazer para o frontend (tipicamente através de um <code>print</code> no arquivo).</p>
+          <p>Sendo assim, faça uma requisição <code>GET</code> para <kbd>https://lab-s-muxipay.muxi.com.br/api/v1/checkout_transparente/createPaymentSession/<mark>ID_DE_CLIENTE</mark></kbd>. A resposta, caso o ID seja válido, será no formato:</p>
+          <pre><code>{ id: "<strong><em>ID_DA_SESSÃO</em></strong>" }</code></pre>
+          <p>De posse do <strong>ID da sessão</strong>, já podemos partir para o segundo passo.</p>
+
+          <a name="api_javascript_iniciandoSessao_frontend"></a>
+          <h4>Iniciando Sessão no Frontend</h4>
+          <p>O <strong>ID da sessão</strong> é o único dado obrigatório para inicializar a sessão de pagamento no frontend, mas tipicamente você passará também o <strong>valor a receber</strong> (uma vez que diferentes formas de pagamento possuem valor mínimo de transação e/ou de parcelamento), assim como um <strong>carrinho</strong> com os itens que compõem o pagamento.</p>
+
+          <a name="api_javascript_iniciandoSessao_frontend_dadosDeInicializacao"></a>
+          <h5>Dados de Inicialização</h5>
+          <p>Primeiro, precisamos construir um <em>objeto</em> com os <strong>dados de inicialização</strong> com esses dados. Ele tem a seguinte sintaxe:</p>
+          <pre><code>dadosDeInicializacao = {
+  id: "<strong><em>ID_DA_SESSÃO</em></strong>"                   // obrigatório
+, value: "<em>nnnnn,nn</em>"                    // opcional
+, cart: [                              // opcional
+    {
+      description: "<em><strong>descrição do item</strong></em>" // para os itens do carrinho,
+    , totalValue:  "<em><strong>nnnnn,nn</strong></em>"          // somente descrição e valor total
+    , quantity:    "<em>nnn</em>"               // são obrigatórios. quantidade e
+    , singleValue: "<em>nnnnn,nn</em>"          // valor unitário são opcionais.
+    }
+  ]
+}</code></pre>
+          <p>Preparado o <em>objeto</em> com os <strong>dados de inicialização</strong>, inclua o script da nossa API (<kbd>muxi-payment.js</kbd>) e faça a chamada de inicialização. Esse passo é tipicamente feito incluindo as seguintes linhas antes da tag <kbd>&lt;/body&gt;</kbd>:</p>
+          <pre><code>&lt;script src="https://lab-s-muxipay.muxi.com.br/api/v1/checkout_transparente/muxi-payment.js"&gt;&lt;/script&gt;
+&lt;script&gt;api.init(<strong><a href="#api_javascript_iniciandoSessao_frontend_dadosDeInicializacao">dadosDeInicializacao</a></strong>, <a href="#api_javascript_iniciandoSessao_frontend_callbackDeSucesso">callbackDeSucesso</a>, <a href="#api_javascript_iniciandoSessao_frontend_callbackDeErro">callbackDeErro</a>)&lt;/script&gt;</code></pre>
+          <p><small>(Dica: Você pode clicar em cada argumento da função para ver a sua documentação.)</small></p>
+
+          <a name="api_javascript_iniciandoSessao_frontend_callbackDeSucesso"></a>
+          <h5>Callback de Sucesso da Inicialização</h5>
+          <p>A função <code>callbackDeSucesso</code> trará um objeto no primeiro argumento com os métodos de pagamento disponíveis. Por exemplo:</p>
+<pre><code>{
+  methods: [
+    {
+      method: 'creditcard'
+    , brands: [
+        {
+          id : 'visa'
+        , label : 'Visa'
+        , installments : [
+            {
+              label : '3x'
+            , value : '110,00'
+            , totalValue : '330,00'
+            , tax : true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}</code></pre>
+          <p><code>methods</code> é um <em>array</em> com as formas de pagamento disponíveis. Cada <strong>forma de pagamento</strong> é um <em>objeto</em>, com um identificador <code>method</code>. Algumas formas de pagamento, como cartões de crédito, possuem <strong>bandeiras</strong>, listadas no <em>array</em> <code>brands</code>.</p>
+          <p>Cada <strong>bandeira</strong> é um <em>objeto</em> que tem um <strong>identificador</strong>, <code>id</code>, um <strong>nome para exibição</strong>, <code>label</code>, e um <em>array</em> de <strong>opções de parcelamentos</strong> disponíveis, <code>installments</code>.</p>
+          <p>Cada <strong>opção de parcelamento</strong> é um <em>objeto</em> que possui um <code>label</code>, por exemplo "3x", o <strong>valor de cada parcela</strong>, <code>value</code>, o <strong>valor total</strong>, <code>totalValue</code>, e um <em>booleano</em> que indica se há cobrança de juros no parcelamento ou não, <code>tax</code>. Na opção de parcelamento do exemplo acima, poderia ser exibido "3x com juros de R$ 110,00, totalizando R$ 330,00".</p>
+
+          <a name="api_javascript_iniciandoSessao_frontend_callbackDeErro"></a>
+          <h5>Callback de Erro da Inicialização</h5>
+          <p>A função <code>callbackDeErro</code> possui o seguinte formato... TODO em construção.</p>
+          <p>&nbsp;</p>
+
+          <a name="api_javascript_transacionando"></a>
+          <h3>Transacionando</h3>
+          <p>Uma vez inicializado, você está pronto para efetuar transações com a API de pagamento. Essas chamadas são realizadas através de função <code>api.pay</code>, que possui a seguinte assinatura:</p>
+          <pre><code>api.pay( <a href="#api_javascript_dadosDePagamento">dadosDePagamento</a>, <a href="#api_javascript_callbackDeSucesso">callbackDeSucesso</a>, <a href="#api_javascript_callbackDeErro">callbackDeErro</a> );</code></pre>
+          <p><small>(Dica: Você pode clicar em cada argumento da função para ver a sua documentação.)</small></p>
+
+          <a name="api_javascript_dadosDePagamento"></a>
+          <h4>Dados de Pagamento</h4>
+          <p>O primeiro argumento, <code>dadosDePagamento</code>, é um <em>objeto</em> com três propriedades:
+            <code>id</code>, com a <em>string</em> do <strong>ID da sessão</strong>,
+            <code>totalValue</code>, uma <em>string</em> com o <strong>valor total da transação</strong>, no formato <code>nnnnn,nn</code> (número sem separador de milhar, uma vírgula, e duas casas decimais para centavos) e
+            <code>methods</code>, um <em>array</em> com as <strong>formas de pagamento</strong> escolhidas.
+          </p>
+          <p>Cada <strong>forma de pagamento</strong> é constituída de
+            um <em>objeto</em> com a propriedade <code>method</code> contendo o identificador de cada <strong>forma de pagamento</strong> (por exemplo, <code>creditcard</code>),
+            o <strong>valor neste método de pagamento</strong> como <code>value</code>, no padrão <code>nnnnn,nn</code>,
+            e uma propriedade <code>data</code> com os <strong>dados</strong> do pagamento em questão.
+          </p>
+          <p>Por fim, cada <strong>dado</strong> da forma de pagamento é um <em>objeto</em> com a propriedade 
+            <code>value</code> contendo o seu <strong>valor do dado</strong>,
+            e <em>opcionalmente</em> a propriedade <code>label</code> contendo o <strong>nome do campo para o usuário</strong>.
+          </p>
+          <p>Veja as formas de pagamento disponíveis e um <a href="#api_javascript_exemplo">exemplo completo</a> a seguir.</p>
+
+          <h4>Formas de Pagamento</h4>
+          <h5>Cartão de Crédito</h5>
+          <p>Identificador: <code>creditcard</code>. Dados da forma de pagamento:</p>
+          <dl>
+            <dt>
+              <code>cardNumber</code>
+            </dt>
+            <dd>
+              <strong>Número do cartão, sem espaços.</strong><br>
+              Obrigatório: <strong>sim</strong><br>
+              Formato: <strong>valor numérico</strong>
+            </dd>
+            <dt>
+              <code>cardName</code>
+            </dt>
+            <dd>
+              <strong>Nome do cliente como escrito no cartão.</strong><br>
+              Obrigatório: <strong>sim</strong><br>
+              Formato: <strong>de 2 a 50 caracteres</strong>
+            </dd>
+            <dt>
+              <code>cardExpMonth</code>
+            </dt>
+            <dd>
+              <strong>Mês da data de expiração do cartão.</strong><br>
+              Obrigatório: <strong>sim</strong><br>
+              Formato: <strong>dois dígitos, de 01 a 12</strong>
+            </dd>
+            <dt>
+              <code>cardExpYear</code>
+            </dt>
+            <dd>
+              <strong>Ano da data de expiração do cartão.</strong><br>
+              Obrigatório: <strong>sim</strong><br>
+              Formato: <strong>valor numérico</strong>
+            </dd>
+            <dt>
+              <code>cardValidationCode</code>
+            </dt>
+            <dd>
+              <strong>Código de validação (CVV) do cartão.</strong><br>
+              Obrigatório: <strong><em>não*</em></strong><br>
+              Formato: <strong>três dígitos</strong><br>
+              <small>* Alguns cartões não utilizam código de validação. Nos que utilizam, será necessário que o cliente digite o código para que o pagamento seja autorizado.</small>
+            </dd>
+          </dl>
+
+          <h5>...</h5>
+          <p>(Em construção)</p>
+          <a name="api_javascript_exemplo"></a>
+<pre><code>dadosDePagamento = {
+  id: "<em>ID_DA_SESSÃO</em>"
+, totalValue: "<em>12345,67</em>"
+, methods: [
+    {
+      method: "creditcard"
+    , value: "<em>12345,67</em>"
+    , data: {
+        cardNumber: {
+          value: "<em>4222222222222222</em>"
+        }
+      , cardName: {
+          value: "<em>JON SNOW</em>"
+        }
+      , cardExpMonth: {
+          value: "<em>12</em>"
+        }
+      , cardExpYear: {
+          value: "<em>22</em>"
+        }
+      , cardValidationCode: {
+          value: "<em>222</em>"
+        }
+      }
+    }
+  ]
+}</code></pre>
+
+          <a name="api_javascript_callbackDeSucesso"></a>
+          <h4>Callback de Sucesso</h4>
+          <p>Caso não haja nenhum problema de comunicação com o servidor, a API chamada em <code>api.pay</code> irá retornar a resposta para o callback de sucesso, com o status da transação: se a mesma foi aprovada imediatamente, se foi reprovada, ou se ainda está em análise.</p>
+          <p><strong>Note que caso o pagamento seja recusado, a resposta será recebida no callback de sucesso, não no callback de erro. Você deverá verificar a propriedade <code>success</code> da resposta para verificar se o pagamento foi, de fato, aprovado.</strong></p>
+          <p>O callback de sucesso tem a seguinte assinatura:</p>
+          <pre><code>callbackDeSuccesso( result )</code></pre>
+          <p><code>result</code> é um <em>objeto</em> com as seguintes propriedades:</p>
+          <dl>
+            <dt><code>message</code></dt>
+            <dd><em>Mensagem</em> descrevendo o status da transação.</dd>
+            <dt><code>status</code></dt>
+            <dd><em>ID</em> do status da transação.</dd>
+            <dt><code>success</code></dt>
+            <dd><em>Booleano</em> indicando se a cobrança foi efetuada com sucesso ou não.</dd>
+          </dl>
+          <p>A lista de <code>status</code> e <code>message</code> são as seguintes:</p>
+          <dl>
+            <dt>Status <code>1</code></dt>
+            <dd>Pagamento aprovado pela operadora</dd>
+            <dt>...</dt>
+            <dd>(Em construção)</dd>
+          </dl>
+          <p>Exemplo de objeto recebido pelo callback de sucesso:</p>
+<pre><code class="javascript">{
+  status: "1"
+, message: "Pagamento aprovado pela operadora"
+, success: true
+}</code></pre>
+
+          <a name="api_javascript_callbackDeErro"></a>
+          <h4>Callback de Erro</h4>
+          <p>Caso haja algum problema no pagamento, como dados de pagamento errados, operadora fora do ar etc., você terá feedback através do callback de erro.</p>
+          <p><strong>Note que caso a transação seja processada com sucesso, mas o pagamento seja recusado, a resposta será recebida no callback de sucesso, não no callback de erro. Você deverá verificar a propriedade <code>status</code> da callback de sucesso para verificar se o pagamento foi, de fato, negado pela operadora.</strong></p>
+          <p>O callback de erro tem a seguinte assinatura:</p>
+          <pre><code>callbackDeErro( result )</code></pre>
+          <p><code>result</code> é um objeto com as seguintes propriedades:</p>
+          <dl>
+            <dt><code>message</code></dt>
+            <dd><em>Mensagem</em> descrevendo o problema na transação.</dd>
+            <dt><code>success</code></dt>
+            <dd><em>Booleano</em> indicando que a cobrança não foi executada (ou seja, sempre virá <code>false</code>)</dd>
+            <dt><code>validation</code></dt>
+            <dd><em>Objeto</em> que traz os erros, caso sejam de validação.</dd>
+          </dl>
+          <p><small>(Note que os parâmetros <code>message</code> e <code>success</code> são os mesmos do callback de sucesso, de forma que você poderá utilizar a mesma função para verificar se o pagamento foi efetuado no ato ou se deu qualquer tipo de problema.)</small></p>
+          <p>O <em>objeto</em> <code>validation</code> tem uma propriedade <code>errors</code>, um <em>array</em> que traz os <strong>erros de validação</strong>.</p>
+          <p>Cada item no array <code>errors</code> é um <em>objeto</em>, com as propriedades <code>field</code>, que define o <strong>campo com erro</strong>, e <code>errors</code>, um <em>array</em> que descreve os <strong>erros do campo</strong> em questão.</p>
+          <p>Cada item de erro do campo é um <em>objeto</em> com as propriedades <code>code</code>, que define o <strong>código do erro</strong>, e <code>message</code>, que traz uma descrição do erro, que pode ser usada para alertar o usuário.</p>
+          <p>Exemplo de objeto recebido pelo callback de erro:</p>
+<pre><code>{
+  "message" : "Os campos informados possuem erro"
+, "success" : false
+, "validation" : {
+    "errors" : [
+      {
+        "field" : "<em>cardName</em>"
+      , "errors" : [
+          {
+            "code" : "<em>type.name</em>"
+          , "message" : "O campo &lt;strong&gt;Nome no cartão&lt;/strong&gt; pode conter apenas letras e espa&ccedil;os"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+        </article>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>
