@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Documentação ECOM</title>
+  <title>e-Commerce API</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
   <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/solarized_dark.min.css">
@@ -14,7 +14,7 @@
   <div class="container-fluid">
     <div class="row">
       <nav class="bg-info">
-        <h3><span class="print-only">Índice</span><span class="print-hidden">Menu</span></h3>
+        <h3><span class="print-only">Índice</span><span class="print-hidden">e-Commerce API</span></h3>
         <ol>
           <li><a href="#introducao">Introdução</a></li>
           <li><a href="#checkout_redirect">Checkout Redirect</a></li>
@@ -44,8 +44,8 @@
         <a name="introducao"></a>
         <article>
           <h2>Introdução</h2>
-          <p>Este documento descreve os passos necessários para realizar uma integração com a nossa plataforma de pagamentos.</p>
-          <p>Oferecemos duas formas de realizar o checkout:
+          <p>Este documento descreve os passos necessários para realizar uma integração com a nossa API de pagamento para e.Commerce.</p>
+          <p>Atualmente estão disponíveis duas formas de realizar o checkout:
           <ul>
             <li>
               <h3><a href="#checkout_redirect">Checkout Redirect</a></h3>
@@ -53,14 +53,14 @@
             </li>
             <li>
               <h3><a href="#api_javascript">Checkout Transparente</a></h3>
-              <p>No Checkout Transparente, o desenvolvedor é responsável por controlar todos os dados relacionados ao status do pagamento (carrinho etc.) e realizar as comunicações com o servidor através do acesso à nossa API via JavaScript. Para mais detalhes, <a href="#api_javascript">clique aqui</a>.</p>
+              <p>O Checkout Transparente está disponível para lojas que disponham de certificação PCI. Nele o vendedor é responsável por controlar todos os dados relacionados ao status do pagamento (carrinho etc.) e realizar as comunicações com o servidor através do acesso à nossa API via JavaScript. Para mais detalhes, <a href="#api_javascript">clique aqui</a>.</p>
             </li>
         </article>
 
         <a name="checkout_redirect"></a>
         <article>
           <h2>Checkout Redirect</h2>
-          <p>Neste exemplo, utilizaremos a <em>Loja Teste</em>, que não é uma plataforma de loja online completa, mas possui um formulário com os campos essenciais para realizar a chamada para a API. Você pode <a href="#checkout_redirect_exemplo">ver um exemplo</a> ou <a href="http://TODO-CORRIGIR-URL" target="_blank">baixar o código fonte da Loja Teste no nosso Github</a>.</p>
+          <p>Neste exemplo, utilizaremos a <em>Loja Teste</em>, que não é uma plataforma de loja online completa, mas possui um formulário com os campos essenciais para realizar a chamada para a API. Você pode <a href="#checkout_redirect_exemplo">ver um exemplo</a> ou <a href="http://lab-s-muxipay.muxi.com.br/loja-teste/" target="_blank">baixar o código fonte da Loja Teste no nosso Github</a>.</p>
           <ol>
             <li>
               <p>O cliente implementa um formulário com os parâmetros da solução contendo dados para o <strong>Checkout</strong>. O <code>action</code> do formulário deve apontar para a URL <code>https://lab-s-muxipay.muxi.com.br/api/v1/checkout_redirect/</code>.</p>
