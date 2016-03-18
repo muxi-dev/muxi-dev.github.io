@@ -59,6 +59,10 @@ mark {
   color: red;
 }
 
+p > img {
+  max-width: 100%;
+}
+
 .print-only {
   display: none;
 }
@@ -82,4 +86,30 @@ mark {
   article {
     page-break-after: always;
   }
+}
+
+table.hover-only > tbody > tr > td:not('hover') {
+  background-color: white !important;
+}
+
+span.danger {
+  color: red;
+}
+
+kbd.danger {
+  background-color: red;
+}
+
+span.success {
+  color: green;
+}
+kbd.success {
+  background-color: green;
+}
+
+span.info {
+  color: blue;
+}
+kbd.info {
+  background-color: blue;
 }

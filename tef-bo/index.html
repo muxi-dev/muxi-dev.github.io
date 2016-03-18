@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TEF-BO Import Guidelines</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/solarized_dark.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="bg-info">
+        <h3><span class="print-only">Índice</span><span class="print-hidden">Import TEF-BO</span></h3>
+        <ol>
+            <li><a href="#doc_info">Informações do Documento</a></li>
+            <li><a href="#controle_alteracoes">Controle de Alterações</a></li>
+            <li><a href="#introducao">Introdução</a></li>
+            <li><a href="#specification">Especificação</a>
+                <ol>
+                    <li><a href="#file_header_record">File Header Record</a></li>
+                    <li><a href="#merchant_record">Merchant Record</a></li>
+                    <li><a href="#terminal_record">Terminal Record</a></li>
+                    <li><a href="#file_trailer_record">File Trailer Record</a></li>
+                </ol>
+            </li>
+            <li><a href="#records_tb_fill">Preenchimento da Tabela de Registros</a>
+                <ol><li><a href="#fields_glossary">Glossário de Campos</a></li></ol>
+            </li>
+        </ol>
+      </nav>
+
+      <section>
+        <h1>Documentação da Importação de Estabelecimentos e Terminais do BackOffice do TEF</h1>
+
+        <a name="doc_info"></a>
+        <article>
+        <table class="table table-hover">
+            <tr>
+                <td><strong>Documento</strong></td>
+                <td>Documento de Importação de Estabelecimentos e Terminais do BackOffice do TEF</td>
+            </tr>
+            <tr>
+                <td><strong>Versão</strong></td>
+                <td>1.0.0</td>
+            </tr>
+            <tr>
+                <td><strong>Responsabilidade</strong></td>
+                <td>Muxi - BackOffice &amp; Web</td>
+            </tr>
+            <tr>
+                <td><strong>Local</strong></td>
+                <td>Rio de Janeiro-RJ</td>
+            </tr>
+            <tr>
+                <td><strong>Data</strong></td>
+                <td>15 de Fevereiro de 2016</td>
+            </tr>
+        </table>
+        </article>
+
+        <a name="controle_alteracoes"></a>
+        <article>
+          <h2>Controle de Alterações</h2>
+          <table class="table table-hover">
+            <tr>
+                <th>Data</th>
+                <th>Versão</th>
+                <th>Descrição</th>
+                <th>Autor</th>
+            </tr>
+            <tr>
+                <td>15/02/2016</td>
+                <td>1.0.0</td>
+                <td>Criação do Documento</td>
+                <td>Vinicius Sobral</td>
+            </tr>
+        </table>
+        </article>
+
+        <a name="introducao"></a>
+        <article>
+          <h2>Introdução</h2>
+          <p>Este documento visa prover orientações de preenchimento da planilha de importação de estabelecimentos e terminais para o backoffice do TEF.</p>
+          <p>A importação é baseada em arquivo de texto devidamente configurado conforme especificações descritas na seção <a href="#specification">Especificação</a>. O arquivo de texto pode ser gerado diretamente através de algum método de execução automática. Uma outra forma de se realizar a importação, porém, é utilizando esta <a href="http://km.muxi.com.br/download/attachments/3440719/Arq_Valida%C3%A7%C3%A3o_Dados_TEF_-_01022016.xlsx?version=1&modificationDate=1454357007729&api=v2">planilha</a> do Excel como facilitadora, inserindo-se os dados dos estabelecimentos e terminais conforme descrito na seção <a href="#records_tb_fill">Preenchimento da Tabela de Registros</a>. Após o preenchimento da planilha seguida da execução dos procedimentos necessários, supõe-se a obtenção do arquivo de texto retamente configurado e pronto para importação.</p>
+          <p>Este documento está estruturado da seguinte forma:
+          <ul>
+            <li>A <a href="#doc_info">seção 1</a> apresenta as informações desse documento.</li>
+            <li>A <a href="#controle_alteracoes">seção 2</a> lista as alterações, com suas respectivas datas e responsáveis, feitas até então neste documento.</li>
+            <li>A seção 3 é esta seção e apresenta a introdução para a especificação da importação do TEF-BO.</li>
+            <li>A <a href="#specification">seção 4</a> descreve as especificações do arquivo usado para importação.</li>
+            <li>A <a href="#records_tb_fill">seção 5</a> provê diretrizes para o preenchimento da planilha de validação dos dados, descrevendo erros e ilustrando-os com exemplos. Descreve também o significado de cada coluna da tabela, provendo um glossário de termos.</li>
+          </ul>
+          </p>
+        </article>
+
+        <a name="specification"></a>
+        <article>
+            <h2>Especificação</h2>
+            <p>Na especificação do arquivo de texto, cada linha representa um único registro. Os tipos de registro podem ser:</p>
+            <ol class="tiny">
+                <li><a href="#file_header_record">File Header Record</a></li>
+                <li><a href="#merchant_record">Merchant Record</a></li>
+                <li><a href="#terminal_record">Terminal Record</a></li>
+                <li><a href="#file_trailer_record">File Trailer Record</a></li>
+            </ol>
+            <p>O formato do arquivo DEVE seguir a seguinte formatação:</p>
+            <pre>FILE HEADER RECORD
+MERCHANT RECORD/TERMINAL RECORD
+(...)
+MERCHANT RECORD/TERMINAL RECORD
+FILE TRAILER RECORD</pre>
+            <p>Não há delimitador de campos. Para cada linha, todos os campos, numéricos ou alfanuméricos devem ter a quantidade especificada de caracteres, ainda que seu conteúdo seja vazio.</p>
+            <p>Para campos alfanuméricos, complete o tamanho do campo com espaços <strong>à direita</strong> caso necessário. Por exemplo, o campo CPF/CNPJ tem 14 caracteres; como o CPF tem 11 caracteres deve-se incluir três espaços para completar o campo. Ou seja: <kbd>12345678912&nbsp;&nbsp;&nbsp;</kbd>.</p>
+            <p>Para campos numéricos, os números devem ser completados com zeros <strong>à esquerda</strong>. Por exemplo, o campo número total de registros tem 9 caracteres, caso a quantidade real seja 123 deverá ser registrado como <kbd>000000123</kbd>.</p>
+            <p>Nas tabelas a seguir, as cores na primeira coluna servem apenas para facilitar o entendimento dos campos no exemplo subsequente.</p>
+
+            <a name="file_header_record"></a>
+            <div>
+                <h3>FILE HEADER RECORD</h3>
+                <p>O registro do tipo FILE HEADER possui sempre <strong>30</strong> caracteres, entre numéricos e alfanuméricos, conforme a seguinte tabela:</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Seq.</th>
+                            <th>Formato</th>
+                            <th>Início</th>
+                            <th>Fim</th>
+                            <th>Mandatório</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>1</td>
+                            <td>Numérico(2)</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>Sim</td>
+                            <td>Tipo do Registro. O valor do header é sempre <code>00</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>2</td>
+                            <td>Numérico(8)</td>
+                            <td>3</td>
+                            <td>10</td>
+                            <td>Sim</td>
+                            <td>Data do Arquivo no formato <code>yyyymmdd</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>3</td>
+                            <td>Numérico(8)</td>
+                            <td>11</td>
+                            <td>18</td>
+                            <td>Sim</td>
+                            <td>File ID. Sequência que representa unicamente o arquivo.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>4</td>
+                            <td>Numérico(11)</td>
+                            <td>19</td>
+                            <td>29</td>
+                            <td>Sim</td>
+                            <td>Acquirer ID. Código que identifica o adquirente ao qual os estabelecimentos pertencem.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>5</td>
+                            <td>Alfanumérico(1)</td>
+                            <td>30</td>
+                            <td>30</td>
+                            <td>Sim</td>
+                            <td>File Type. Em modo full, <code>F</code>. Em outros modos, <code>D</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Exemplo:</h4>
+                <p><pre><span class="danger">00</span><span class="success">20160217</span><span class="info">12345678</span><span class="danger">12345678901</span><span class="success">F</span></pre></p>
+            </div>
+
+            <a name="merchant_record"></a>
+            <div>
+                <h3>MERCHANT RECORD</h3>
+                <p>O registro do tipo MERCHANT possui sempre <strong>771</strong> caracteres conforme a seguinte tabela:</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Seq.</th>
+                            <th>Formato</th>
+                            <th>Início</th>
+                            <th>Fim</th>
+                            <th>Mandatório</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>1</td>
+                            <td>Numérico(2)</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>Sim</td>
+                            <td>Tipo do Registro. O valor do merchant é sempre <code>10</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>2</td>
+                            <td>Alfanumérico(14)</td>
+                            <td>3</td>
+                            <td>16</td>
+                            <td>Sim</td>
+                            <td>Documento. Número do documento identificador do estabelecimento (CNPJ ou CPF), sem pontos ou traços. Caso o documento seja CPF, incluir três espaços no final para chegar ao tamanho mandatório (14 caracteres).</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>3</td>
+                            <td>Alfanumérico(1)</td>
+                            <td>17</td>
+                            <td>17</td>
+                            <td>Sim</td>
+                            <td>Tipo do Merchant. Indica o tipo do estabelecimento, usando um código de letras. Valor = <code>F</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>4</td>
+                            <td>Alfanumérico(60)</td>
+                            <td>18</td>
+                            <td>77</td>
+                            <td>Sim</td>
+                            <td>Razão Social. Nome de registro do estabelecimento.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>5</td>
+                            <td>Alfanumérico(60)</td>
+                            <td>78</td>
+                            <td>137</td>
+                            <td>Sim</td>
+                            <td>Nome Fantasia. Nome pelo qual o estabelecimento é conhecido.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>6</td>
+                            <td>Numérico(7)</td>
+                            <td>138</td>
+                            <td>144</td>
+                            <td>Sim</td>
+                            <td>MCC. Merchant Category Code (código internacional de catagoria do estabelecimento).</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>7</td>
+                            <td>Alfanumérico(160)</td>
+                            <td>145</td>
+                            <td>304</td>
+                            <td>Sim</td>
+                            <td>Web Site. URL, endereço web para e-commerce.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>8</td>
+                            <td>Alfanumérico(150)</td>
+                            <td>305</td>
+                            <td>454</td>
+                            <td>Sim</td>
+                            <td>Endereço. Rua, número e complemento do endereço.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>9</td>
+                            <td>Alfanumérico(8)</td>
+                            <td>455</td>
+                            <td>462</td>
+                            <td>Sim</td>
+                            <td>CEP.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>10</td>
+                            <td>Numérico(3)</td>
+                            <td>463</td>
+                            <td>465</td>
+                            <td>Sim</td>
+                            <td>País. Não deve ser 0.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>11</td>
+                            <td>Alfanumérico(30)</td>
+                            <td>466</td>
+                            <td>495</td>
+                            <td>Sim</td>
+                            <td>Cidade.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>12</td>
+                            <td>Alfanumérico(60)</td>
+                            <td>496</td>
+                            <td>555</td>
+                            <td>Sim</td>
+                            <td>Bairro.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>13</td>
+                            <td>Alfanumérico(2)</td>
+                            <td>556</td>
+                            <td>557</td>
+                            <td>Sim</td>
+                            <td>Estado ou Província.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>14</td>
+                            <td>Alfanumérico(16)</td>
+                            <td>558</td>
+                            <td>573</td>
+                            <td>Sim</td>
+                            <td>Telefone.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>15</td>
+                            <td>Alfanumérico(1)</td>
+                            <td>574</td>
+                            <td>574</td>
+                            <td>Sim</td>
+                            <td>Tipo da Operação.
+                                <br><code>A</code> = Incluir registro
+                                <br><code>E</code> = Excluir registro
+                                <br><code>M</code> = Manutenção
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>16</td>
+                            <td>Numérico(15)</td>
+                            <td>575</td>
+                            <td>589</td>
+                            <td>Sim</td>
+                            <td>Merchant ID. Se 0, o sistema deve gerar um sequencial consecutivo para identificar cada estabelecimento.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>17</td>
+                            <td>Numérico(9)</td>
+                            <td>590</td>
+                            <td>598</td>
+                            <td>Sim</td>
+                            <td>Branch ID. Identifica unicamente um ramo pertencente ao estabelecimento. Esse valor deve ser maior que 0.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>18</td>
+                            <td>Numérico(9)</td>
+                            <td>599</td>
+                            <td>607</td>
+                            <td>Sim</td>
+                            <td>Departamento. Identifica unicamente um departamento pertencente ao estabelecimento. Esse valor deve ser maior que 0.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>19</td>
+                            <td>Alfanumérico(36)</td>
+                            <td>608</td>
+                            <td>643</td>
+                            <td>Opcional</td>
+                            <td>Linha 1. Espaços.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>20</td>
+                            <td>Alfanumérico(36)</td>
+                            <td>644</td>
+                            <td>679</td>
+                            <td>Opcional</td>
+                            <td>Linha 2. Espaços.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>21</td>
+                            <td>Numérico(2)</td>
+                            <td>680</td>
+                            <td>681</td>
+                            <td>Sim</td>
+                            <td>Fuso Horário. O fuso horário (GMT, GMT+2, etc) onde o ramo está localizado.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>22</td>
+                            <td>Alfanumérico(30)</td>
+                            <td>682</td>
+                            <td>711</td>
+                            <td>Sim</td>
+                            <td>Cronograma. Armazena o número de horas trabalhadas para o ramo.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>23</td>
+                            <td>Alfanumérico(60)</td>
+                            <td>712</td>
+                            <td>771</td>
+                            <td>Sim</td>
+                            <td>Pessoa responsável pelo estabelecimento.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Exemplo:</h4>
+                <p><pre><span class="danger">10</span><span class="success">12345678912   </span><span class="info">F</span><span class="danger">RAZAO SOCIAL DO ESTABELECIMENTO                             </span><span class="success">NOME FANTASIA DO ESTABELECIMENTO                            </span><span class="info">1234567</span><span class="danger">http://www.muxi.com.br                                                                                                                                          </span><span class="success">Rua Fulano de Tal, 123 sala 12                                                                                                                        </span><span class="info">12345678</span><span class="danger">123</span><span class="success">Rio de Janeiro                </span><span class="info">Centro                                                      </span><span class="danger">RJ</span><span class="success">552121212121    </span><span class="info">A</span><span class="danger">123456789012345</span><span class="success">123456789</span><span class="info">123456789</span><span class="danger">Opcional Linha 1                    </span><span class="success">Opcional Linha 2                    </span><span class="info">03</span><span class="danger">Cronograma                    </span><span class="success">Nome do responsável pelo estabelecimento                    </span></pre></p>
+            </div>
+
+            <a name="terminal_record"></a>
+            <div>
+                <h3>TERMINAL RECORD</h3>
+                <p>O registro do tipo TERMINAL possui sempre <strong>162</strong> caracteres conforme a seguinte tabela:</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Seq.</th>
+                            <th>Formato</th>
+                            <th>Início</th>
+                            <th>Fim</th>
+                            <th>Mandatório</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>1</td>
+                            <td>Numérico(2)</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>Sim</td>
+                            <td>Tipo do Registro. O valor do terminal é sempre <code>20</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>2</td>
+                            <td>Alfanumérico(1)</td>
+                            <td>3</td>
+                            <td>3</td>
+                            <td>Sim</td>
+                            <td>Tipo da Operação.
+                                <br><code>A</code> = Incluir registro
+                                <br><code>E</code> = Excluir registro
+                                <br><code>M</code> = Manutenção
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>3</td>
+                            <td>Numérico(15)</td>
+                            <td>4</td>
+                            <td>18</td>
+                            <td>Sim</td>
+                            <td>Merchant ID. Sequencial que identifica o estabelecimento.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>4</td>
+                            <td>Numérico(9)</td>
+                            <td>19</td>
+                            <td>27</td>
+                            <td>Sim</td>
+                            <td>Branch ID. Identifica unicamente um ramo pertencente ao estabelecimento. Esse valor deve ser maior que 0.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>5</td>
+                            <td>Numérico(9)</td>
+                            <td>28</td>
+                            <td>36</td>
+                            <td>Sim</td>
+                            <td>Departamento. Departamento comercial do estabelecimento.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>6</td>
+                            <td>Alfanumérico(16)</td>
+                            <td>37</td>
+                            <td>52</td>
+                            <td>Sim</td>
+                            <td>Terminal. Identificador único de um terminal de estabelecimento.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>7</td>
+                            <td>Numérico(8)</td>
+                            <td>53</td>
+                            <td>60</td>
+                            <td>Sim</td>
+                            <td>Data de instalação no formato <code>YYYYMMDD</code></td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>8</td>
+                            <td>Numérico(9)</td>
+                            <td>61</td>
+                            <td>69</td>
+                            <td>Sim</td>
+                            <td>Tipo da tecnologia correspondente ao terminal. (SS).</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>9</td>
+                            <td>Numérico(9)</td>
+                            <td>70</td>
+                            <td>78</td>
+                            <td>Sim</td>
+                            <td>Marca do terminal. (SS).</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>10</td>
+                            <td>Alfanumérico(30)</td>
+                            <td>79</td>
+                            <td>108</td>
+                            <td>Sim</td>
+                            <td>Descrição da marca do terminal. (SS)</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="success">&nbsp;</kbd></td>
+                            <td>11</td>
+                            <td>Numérico(9)</td>
+                            <td>109</td>
+                            <td>117</td>
+                            <td>Sim</td>
+                            <td>Modelo do terminal.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="info">&nbsp;</kbd></td>
+                            <td>12</td>
+                            <td>Alfanumérico(30)</td>
+                            <td>118</td>
+                            <td>147</td>
+                            <td>Sim</td>
+                            <td>Descrição do modelo do terminal.</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="danger">&nbsp;</kbd></td>
+                            <td>13</td>
+                            <td>Alfanumérico(15)</td>
+                            <td>148</td>
+                            <td>162</td>
+                            <td>Sim</td>
+                            <td>Terminal alternativo.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Exemplo</h4>
+                <p><pre><span class="danger">20</span><span class="success">A</span><span class="info">123456789012345</span><span class="danger">123456789</span><span class="success">123456789</span><span class="info">1234567890123456</span><span class="danger">20160218</span><span class="success">123456789</span><span class="info">123456789</span><span class="danger">Descrição da Marca do Terminal</span><span class="success">123456789</span><span class="info">Descrição do Modelo de Termina</span><span class="danger">123456789012345</span></pre></p>
+            </div>
+
+            <a name="file_trailer_record"></a>
+            <div>
+                <h3>FILE TRAILER RECORD</h3>
+                <p>O registro do tipo FILE TRAILER possui sempre <strong>54</strong> caracteres, conforme a seguinte tabela:</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Seq.</th>
+                            <th>Formato</th>
+                            <th>Início</th>
+                            <th>Fim</th>
+                            <th>Mandatório</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th><kbd class="danger">&nbsp;</kbd></th>
+                            <td>1</td>
+                            <td>Numérico(2)</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>Sim</td>
+                            <td>Tipo do Registro. O valor do trailer é sempre <code>99</code>.</td>
+                        </tr>
+                        <tr>
+                            <th><kbd class="success">&nbsp;</kbd></th>
+                            <td>2</td>
+                            <td>Numérico(8)</td>
+                            <td>3</td>
+                            <td>10</td>
+                            <td>Sim</td>
+                            <td>Data do Arquivo no formato <code>YYYYMMDD</code>.</td>
+                        </tr>
+                        <tr>
+                            <th><kbd class="info">&nbsp;</kbd></th>
+                            <td>3</td>
+                            <td>Numérico(8)</td>
+                            <td>11</td>
+                            <td>18</td>
+                            <td>Sim</td>
+                            <td>File ID. Sequência que representa unicamente o arquivo.</td>
+                        </tr>
+                        <tr>
+                            <th><kbd class="danger">&nbsp;</kbd></th>
+                            <td>4</td>
+                            <td>Numérico(9)</td>
+                            <td>19</td>
+                            <td>27</td>
+                            <td>Sim</td>
+                            <td>Número total de registros de estabelecimento (registros que começam com <code>10</code>).</td>
+                        </tr>
+                        <tr>
+                            <th><kbd class="success">&nbsp;</kbd></th>
+                            <td>5</td>
+                            <td>Numérico(9)</td>
+                            <td>28</td>
+                            <td>36</td>
+                            <td>Sim</td>
+                            <td>Número total de registros de terminal (registros que começam com <code>20</code>).</td>
+                        </tr>
+                        <tr>
+                            <th><kbd class="info">&nbsp;</kbd></th>
+                            <td>6</td>
+                            <td>Numérico(9)</td>
+                            <td>37</td>
+                            <td>45</td>
+                            <td>Sim</td>
+                            <td>Número total de registros <code>30</code>.</td>
+                        </tr>
+                        <tr>
+                            <th><kbd class="danger">&nbsp;</kbd></th>
+                            <td>7</td>
+                            <td>Numérico(9)</td>
+                            <td>46</td>
+                            <td>54</td>
+                            <td>Sim</td>
+                            <td>Número total de registros.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- danger, success, info -->
+                <h4>Exemplo</h4>
+                <p><pre><span class="danger">99</span><span class="success">20160218</span><span class="info">12345678</span><span class="danger">123456789</span><span class="success">123456789</span><span class="info">123456789</span><span class="danger">123456789</span></pre></p>
+            </div>
+        </article>
+
+        <a name="records_tb_fill"></a>
+        <article>
+          <h2>Preenchimento da Tabela de Registros</h2>
+          <p>A seguir está um exemplo da tabela com alguns dados fictícios:</p>
+          <p><img alt="Exemplo da Tabela de Importação de Dados" src="resources/valid_dados_tab.png"></p>
+          <p>Cada linha da tabela representa um registro a ser inserido, seja ele um estabelecimento ou terminal. Estabelecimentos com mais de um terminal devem ser repetidos para cada terminal, copiando-se os dados referentes ao estabelecimento (<b>CNPJ</b>, <b>Razão Social</b>, <b>Nome Fantasia</b>, <b>Nº EC</b>, <b>Cidade</b> e <b>Nº Lógico</b>) e <u>modificando-se</u> os dados referentes ao terminal (<b>Afiliação</b> e <b>Id. Terminal</b>). A coluna <b>Qtde. Terminais</b> deve ser preenchida somente uma vez por estabelecimento e é utilizada somente com o propósito de verificar a consistência das informações.</p>
+          <p>Caso o preenchimento seja feito corretamente, na coluna <b>VALIDAÇÃO</b> constará o valor Ok. Caso haja alguma inconsistência nas informações, constará nessa coluna o valor Erro e a mesma será pintada de vermelho. Os casos de inconsistência das informações são:</p>
+          <ul>
+            <li><b>Id de Terminal repetido:</b> Não deve haver um mesmo número de terminal para mais de um estabelecimento, ou mesmo dois registros de um mesmo estabelecimento e mesmo terminal.</li>
+            <li><b>CNPJ repetido:</b> O CNPJ só deve ser repetido caso o estabelecimento possua mais de um Id de Terminal. Não deve haver dois registros com o mesmo CNPJ caso, por exemplo, a Razão Social ou o Número Lógico sejam diferentes.</li>
+            <li><b>Razão Social repetida:</b> A Razão Social só deve ser repetida caso o estabelecimento possua mais de um Id de Terminal. Não deve haver dois registros com a mesma Razão Social caso, por exemplo, o CNPJ ou o Número Lógico sejam diferentes.</li>
+            <li><b>Número Lógico repetido:</b> O Número Lógico só deve ser repetido caso o estabelecimento possua mais de um Id de Terminal. Não deve haver dois registros com o mesmo Número Lógico caso, por exemplo, O CNPJ ou a Razão Social sejam diferentes.</li>
+          </ul>
+          <p>O exemplo a seguir ilustra erro um por haver duas linhas com o mesmo Id de Terminal, sendo diferente somente a Afiliação:</p>
+          <p><img alt="Exemplo de erro Id Terminal repetido" src="resources/exemplo_erro1.png"></p>
+          <p>O exemplo a seguir ilustra erro um por haver duas linhas com a mesma Razão Social para dois registros que deveriam ser  diferentes (diferentes CNPJ e Nº Lógico):</p>
+          <p><img alt="Exemplo de erro Razão Social repetida" src="resources/exemplo_erro2.png"></p>
+
+        <br>
+        <a name="fields_glossary"></a>
+            <h3>Glossário de Campos</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th style="width:10%">Campo</th>
+                        <th>Descrição</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CNPJ</td>
+                        <td>CNPJ do Estabelecimento. Caso pessoa física, deve ser inserido o CPF. Esse campo não deve ter valores repetidos, salvo se o estabelecimento possuir mais de um Id. de Terminal.</td>
+                    </tr>
+                    <tr>
+                        <td>Razão Social</td>
+                        <td>Razão Social do Estabelecimento. Caso pessoa física, deve ser inserido o nome completo. Esse campo não deve ter valores repetidos, salvo se o estabelecimento possuir mais de um Id. de Terminal.</td>
+                    </tr>
+                    <tr>
+                        <td>Nome Fantasia</td>
+                        <td>Nome Fantasia do Estabelecimento. Não há restrição quanto ao valor desse campo. Deve ser inserido o nome pelo qual o estabelecimento/pessoa é popularmente conhecido.</td>
+                    </tr>
+                    <tr>
+                        <td>Nº EC</td>
+                        <td>Número do Estabelecimento Comercial (???)</td>
+                    </tr>
+                    <tr>
+                        <td>Cidade</td>
+                        <td>Cidade do Estabelecimento. Não há restrições quanto ao valor desse campo.</td>
+                    </tr>
+                    <tr>
+                        <td>Qtde Terminais</td>
+                        <td>Quantidade de terminais lógicos que o estabelecimento possui. Não há restrições quanto ao valor desse campo, sendo o mesmo usado apenas para verificação da consistência das informações.</td>
+                    </tr>
+                    <tr>
+                        <td>Afiliação</td>
+                        <td>(???)</td>
+                    </tr>
+                    <tr>
+                        <td>Id Terminal</td>
+                        <td>Identificador lógico do terminal. Número gerado pelo adquirente para identificar unicamente o pool de POS de um estabelecimento. Esse campo não deve ser repetido em hipótese nenhuma.</td>
+                    </tr>
+                    <tr>
+                        <td>Nº Lógico</td>
+                        <td>Número lógico do estabelecimento. Identificador único gerado pelo adquirente para identificar o estabelecimento. Esse campo não deve ter valores repetidos, salvo se o estabelecimento possuir mais de um Id. de Terminal.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </article>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>
